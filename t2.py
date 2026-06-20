@@ -80,6 +80,8 @@ def print_points(m, n):
             print(f"{xx:<8.2f} {yy:<8.2f} {num:<18.12f} {exact:<18.12f} {err:.3e}")
 
 
+import os
+
 def draw_one(m, n):
     x, y, U, it, max_change = solve(m, n)
 
@@ -87,34 +89,42 @@ def draw_one(m, n):
     Ue = u_exact(X, Y)
     Err = np.abs(U - Ue)
 
+    os.makedirs("figs", exist_ok=True)
+
     # 精确解图
     fig = plt.figure()
     ax = fig.add_subplot(111, projection="3d")
     ax.plot_surface(X, Y, Ue)
-    ax.set_title(f"Exact solution")
+    ax.set_title(f"第二题 精确解 m={m}, n={n}")
     ax.set_xlabel("x")
     ax.set_ylabel("y")
     ax.set_zlabel("u")
+    plt.savefig(f"figs/第二题_精确解_m{m}_n{n}.png", dpi=300)
+    plt.close()
 
     # 数值解图
     fig = plt.figure()
     ax = fig.add_subplot(111, projection="3d")
     ax.plot_surface(X, Y, U)
-    ax.set_title(f"Numerical solution: m={m}, n={n}")
+    ax.set_title(f"第二题 数值解 m={m}, n={n}")
     ax.set_xlabel("x")
     ax.set_ylabel("y")
     ax.set_zlabel("U")
+    plt.savefig(f"figs/第二题_数值解_m{m}_n{n}.png", dpi=300)
+    plt.close()
 
     # 误差图
     fig = plt.figure()
     ax = fig.add_subplot(111, projection="3d")
     ax.plot_surface(X, Y, Err)
-    ax.set_title(f"Error: m={m}, n={n}")
+    ax.set_title(f"第二题 误差图 m={m}, n={n}")
     ax.set_xlabel("x")
     ax.set_ylabel("y")
     ax.set_zlabel("|U-u|")
+    plt.savefig(f"figs/第二题_误差图_m{m}_n{n}.png", dpi=300)
+    plt.close()
 
-    plt.show()
+    print(f"第二题 m={m}, n={n} 的三张图已经保存到 figs 文件夹")
 
 
 # 输出 10 个指定节点
