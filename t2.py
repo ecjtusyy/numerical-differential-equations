@@ -44,7 +44,6 @@ A x = b
 """
 
 
-# 设置中文标题，避免图片中文乱码
 plt.rcParams["font.sans-serif"] = ["SimHei", "Microsoft YaHei", "Arial Unicode MS"]
 plt.rcParams["axes.unicode_minus"] = False
 
