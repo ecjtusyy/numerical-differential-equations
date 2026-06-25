@@ -29,7 +29,7 @@ def right_bc(t):
 # 第1问：差分递推公式
 # u_i^{j+1}=2(1-r^2)u_i^j-u_i^{j-1}+r^2(u_{i+1}^j+u_{i-1}^j)
 # r=c*tau/h，第一层用初始速度单独算
-def wave_solve(h=0.05, tau=0.005, c=10):
+def wave_solve(h=0.05, tau=0.005, c=0.1):
     x = np.arange(0, 10 + h, h)
     t = np.arange(0, 10 + tau, tau)
 
@@ -164,7 +164,7 @@ def plot_error(x, t, u):
 # 主程序
 h = 0.05
 tau = 0.005
-c = 10       # 按题面方程 u_tt - 100u_xx = 0，所以 c=10
+c = 0.1       
 
 x, t, u, r = wave_solve(h, tau, c)
 
