@@ -179,68 +179,97 @@ def print_points(m, n):
             print(f"{xx:<8.2f} {yy:<8.2f} {num:<18.12f} {exact:<18.12f} {err:.3e}")
 
 
-def draw_exact():
-    # 第二题第4问：精确解图只需要画一张
-    x = np.linspace(1, 2, 101)
-    y = np.linspace(0, 3, 101)
+def draw_figures():
 
-    X, Y = np.meshgrid(x, y, indexing="ij")
-    Ue = u_exact(X, Y)
+    x1, y1, U1 = solve(20, 30)
+    x2, y2, U2 = solve(40, 60)
 
-    os.makedirs("figs", exist_ok=True)
+    X1, Y1 = np.meshgrid(x1, y1, indexing="ij")
+    X2, Y2 = np.meshgrid(x2, y2, indexing="ij")
 
-    fig = plt.figure()
-    ax = fig.add_subplot(111, projection="3d")
-    ax.plot_surface(X, Y, Ue)
-    ax.set_title("第二题第4问 精确解图")
-    ax.set_xlabel("x")
-    ax.set_ylabel("y")
-    ax.set_zlabel("u")
-    plt.savefig("figs/第二题第4问_精确解图.png", dpi=300)
+    Ue1 = u_exact(X1, Y1)
+    Ue2 = u_exact(X2, Y2)
+
+    E1 = np.abs(U1 - Ue1)
+    E2 = np.abs(U2 - Ue2)
+
+    fig, axes = plt.subplots(1, 3, figsize=(15, 4))
+
+    levels = np.linspace(Ue2.min(), Ue2.max(), 35)
+
+    c0 = axes[0].contourf(X2, Y2, Ue2, levels=levels)
+    axes[0].contour(X2, Y2, Ue2, levels=levels, linewidths=0.4)
+    axes[0].set_title("精确解")
+    axes[0].set_xlabel("x")
+    axes[0].set_ylabel("y")
+    fig.colorbar(c0, ax=axes[0])
+
+    c1 = axes[1].contourf(X1, Y1, U1, levels=levels)
+    axes[1].contour(X1, Y1, U1, levels=levels, linewidths=0.4)
+    axes[1].set_title("数值解 m=20, n=30")
+    axes[1].set_xlabel("x")
+    axes[1].set_ylabel("y")
+    fig.colorbar(c1, ax=axes[1])
+
+    c2 = axes[2].contourf(X2, Y2, U2, levels=levels)
+    axes[2].contour(X2, Y2, U2, levels=levels, linewidths=0.4)
+    axes[2].set_title("数值解 m=40, n=60")
+    axes[2].set_xlabel("x")
+    axes[2].set_ylabel("y")
+    fig.colorbar(c2, ax=axes[2])
+
+    plt.suptitle("第二题第4问：精确解与两种数值解对比")
+    plt.tight_layout()
+    plt.savefig("第二题第4问_图1_解函数对比图.png", dpi=300)
     plt.close()
 
-    print("第二题第4问：精确解图已保存到 figs 文件夹")
+    fig, axes = plt.subplots(1, 2, figsize=(11, 4))
 
+    e_max = max(E1.max(), E2.max())
+    levels_err = np.linspace(0, e_max, 35)
 
-def draw_num_err(m, n):
-    x, y, U = solve(m, n)
+    c1 = axes[0].contourf(X1, Y1, E1, levels=levels_err)
+    axes[0].set_title(f"m=20, n=30，最大误差={E1.max():.3e}")
+    axes[0].set_xlabel("x")
+    axes[0].set_ylabel("y")
+    fig.colorbar(c1, ax=axes[0])
 
-    X, Y = np.meshgrid(x, y, indexing="ij")
-    Ue = u_exact(X, Y)
-    Err = np.abs(U - Ue)
+    c2 = axes[1].contourf(X2, Y2, E2, levels=levels_err)
+    axes[1].set_title(f"m=40, n=60，最大误差={E2.max():.3e}")
+    axes[1].set_xlabel("x")
+    axes[1].set_ylabel("y")
+    fig.colorbar(c2, ax=axes[1])
 
-    os.makedirs("figs", exist_ok=True)
-
-    # 第二题第4问：数值解图
-    fig = plt.figure()
-    ax = fig.add_subplot(111, projection="3d")
-    ax.plot_surface(X, Y, U)
-    ax.set_title(f"第二题第4问 数值解图 m={m}, n={n}")
-    ax.set_xlabel("x")
-    ax.set_ylabel("y")
-    ax.set_zlabel("U")
-    plt.savefig(f"figs/第二题第4问_数值解图_m{m}_n{n}.png", dpi=300)
+    plt.suptitle("第二题第4问：误差分布图")
+    plt.tight_layout()
+    plt.savefig("第二题第4问_图2_误差分布图.png", dpi=300)
     plt.close()
 
-    # 第二题第4问：误差图
-    fig = plt.figure()
-    ax = fig.add_subplot(111, projection="3d")
-    ax.plot_surface(X, Y, Err)
-    ax.set_title(f"第二题第4问 误差图 m={m}, n={n}")
-    ax.set_xlabel("x")
-    ax.set_ylabel("y")
-    ax.set_zlabel("|U-u|")
-    plt.savefig(f"figs/第二题第4问_误差图_m{m}_n{n}.png", dpi=300)
+    fig, axes = plt.subplots(1, 3, figsize=(15, 4))
+
+    x_dense = np.linspace(1, 2, 300)
+
+    for ax, yy in zip(axes, [0.5, 1.5, 2.5]):
+        j1 = np.argmin(np.abs(y1 - yy))
+        j2 = np.argmin(np.abs(y2 - yy))
+
+        ax.plot(x_dense, u_exact(x_dense, yy), label="精确解")
+        ax.plot(x1, U1[:, j1], "o", markersize=3, label="m=20, n=30")
+        ax.plot(x2, U2[:, j2], "--", label="m=40, n=60")
+
+        ax.set_title(f"y = {yy}")
+        ax.set_xlabel("x")
+        ax.set_ylabel("u")
+        ax.grid(True)
+        ax.legend()
+
+    plt.suptitle("第二题第4问：固定 y 截面上的解函数对比")
+    plt.tight_layout()
+    plt.savefig("第二题第4问_图3_截面曲线图.png", dpi=300)
     plt.close()
 
-    print(f"第二题第4问：m={m}, n={n} 的数值解图和误差图已保存到 figs 文件夹")
+    print("\n第二题第4问：三张图已保存到 figs 文件夹")
 
-
-# 第二题第3问：输出两种剖分下的 10 个节点结果
 print_points(20, 30)
 print_points(40, 60)
-
-# 第二题第4问：作图
-draw_exact()
-draw_num_err(20, 30)
-draw_num_err(40, 60)
+draw_figures()
